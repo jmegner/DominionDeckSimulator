@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dominion Deck Simulator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Dominion Deck Simulator</h1>
+
+      <section class="controls">
+        <label for="deckInput">Deck list</label>
+        <textarea id="deckInput" rows="4" placeholder="e.g. 7 copper, 3 estate, 3 lab, 1 village, 2 smithy"></textarea>
+
+        <div class="options">
+          <label>
+            Simulations
+            <input type="number" id="simCount" min="1" max="200000" step="100" value="10000" />
+          </label>
+          <label>
+            Random seed (optional)
+            <input type="text" id="seed" placeholder="leave blank for random" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="runBtn">Run Simulation</button>
+          <span id="status" class="status"></span>
+        </div>
+      </section>
+
+      <section class="results">
+        <div class="summary">
+          <h2>Summary</h2>
+          <div id="summary"></div>
+        </div>
+        <div class="histos">
+          <div class="histo">
+            <h3>Cards Drawn (beyond starting 5)</h3>
+            <pre id="histoDraw"></pre>
+          </div>
+          <div class="histo">
+            <h3>Coins Generated</h3>
+            <pre id="histoCoins"></pre>
+          </div>
+          <div class="histo">
+            <h3>Buys Generated</h3>
+            <pre id="histoBuys"></pre>
+          </div>
+          <div class="histo">
+            <h3>End Reasons</h3>
+            <pre id="endReasons"></pre>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
+

@@ -223,26 +223,22 @@ function histogram(values) {
 
 function formatHisto(entries, total) {
   if (!entries.length || total === 0) return '(no data)';
-  const counts = entries.map(([, c]) => c);
-  const pcts = counts.map(c => (c / total) * 100);
-  const maxPct = Math.max(...pcts);
-  const barMax = 32;
-
-  let cumSoFar = 0; // counts up to previous index (strictly less than current value)
+  let cumSoFar = 0; // count of values strictly less than current bucket
   const lines = [];
+  const header = `val |   =n    |  >=n    |  <=n`;
+  lines.push(header);
   for (let i = 0; i < entries.length; i++) {
     const [k, c] = entries[i];
-    const pctExact = pcts[i];
+    const pctExact = (c / total) * 100;
     const pctAtMost = ((cumSoFar + c) / total) * 100; // <= k
     const pctAtLeast = 100 - (cumSoFar / total) * 100; // >= k
-    const barLen = Math.max(1, Math.round((pctExact / maxPct) * barMax));
 
     const kStr = String(k).padStart(3);
     const exactStr = `${pctExact.toFixed(1)}%`.padStart(7);
     const geStr = `${pctAtLeast.toFixed(1)}%`.padStart(7);
     const leStr = `${pctAtMost.toFixed(1)}%`.padStart(7);
 
-    lines.push(`${kStr} | ${'#'.repeat(barLen).padEnd(barMax)} | exact ${exactStr} | >= ${geStr} | <= ${leStr}`);
+    lines.push(`${kStr} | ${exactStr} | ${geStr} | ${leStr}`);
     cumSoFar += c;
   }
   return lines.join('\n');

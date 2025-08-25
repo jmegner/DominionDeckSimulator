@@ -17,12 +17,17 @@
         <div class="options">
           <label>
             Simulations
-            <input type="number" id="simCount" min="1" max="200000" step="100" value="10000" />
+            <input type="number" id="simCount" min="1" max="10000000" value="10000" />
           </label>
           <label>
             Random seed (optional)
             <input type="text" id="seed" placeholder="leave blank for random" />
           </label>
+        </div>
+
+        <div class="sim-buttons-row">
+          <button type="button" id="simUp" title="Multiply simulations by 10">×10</button>
+          <button type="button" id="simDown" title="Divide simulations by 10">÷10</button>
         </div>
 
         <div class="actions">
@@ -60,4 +65,3 @@
     <script src="app.js"></script>
   </body>
   </html>
-

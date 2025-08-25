@@ -48,6 +48,16 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+.sim-buttons-row { margin-top: 10px; display: flex; gap: 8px; }
+.sim-buttons-row button { padding: 6px 10px; }
+
+/* Hide native number spinners for consistent custom controls */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
 .actions {
   margin-top: 12px;
   display: flex;
@@ -91,4 +101,3 @@ pre {
   padding: 8px;
   overflow: auto;
 }
-

@@ -100,8 +100,12 @@ function parseDeckList(input) {
   return { cards: deck, errors: errs };
 }
 
-function isAction(c) { return c.types && c.types.includes('action'); }
-function isTreasure(c) { return c.types && c.types.includes('treasure'); }
+function isAction(c) {
+  return c.types && c.types.includes('action');
+}
+function isTreasure(c) {
+  return c.types && c.types.includes('treasure');
+}
 
 // One-turn simulator from a fixed deck composition
 function simulateTurn(deckCards, rng) {
@@ -115,7 +119,10 @@ function simulateTurn(deckCards, rng) {
   let deckEmptyEncountered = false;
 
   const drawOne = () => {
-    if (draw.length === 0) { deckEmptyEncountered = true; return undefined; }
+    if (draw.length === 0) {
+      deckEmptyEncountered = true;
+      return undefined;
+    }
     return draw.pop();
   };
 
@@ -160,7 +167,10 @@ function simulateTurn(deckCards, rng) {
   // Action phase
   while (actions > 0) {
     const next = nextActionCard();
-    if (!next) { endReason = 'no_action_cards'; break; }
+    if (!next) {
+      endReason = 'no_action_cards';
+      break;
+    }
     // Play it
     actions -= 1;
     inPlay.push(next);
@@ -193,8 +203,8 @@ function simulateTurn(deckCards, rng) {
   let firstSilverPlayed = false;
   const treasures = hand.filter(isTreasure);
   // Silver first, then others
-  const silver = treasures.filter(c => c.id === 'silver');
-  const others = treasures.filter(c => c.id !== 'silver');
+  const silver = treasures.filter((c) => c.id === 'silver');
+  const others = treasures.filter((c) => c.id !== 'silver');
   if (silver.length) {
     // play one silver first
     coins += 2 + (merchantCount > 0 ? merchantCount : 0);
@@ -262,11 +272,11 @@ function runSimulations(deckCards, n, seedStr) {
 function summarize(results) {
   const N = results.length;
   const sum = (f) => results.reduce((acc, r) => acc + f(r), 0);
-  const avg = (f) => (N ? (sum(f) / N) : 0);
-  const avgDraw = avg(r => r.cardsDrawn);
-  const avgCoins = avg(r => r.coins);
-  const avgBuys = avg(r => r.buys);
-  const deckEmptyPct = (sum(r => (r.deckEmptyEncountered ? 1 : 0)) / N) * 100;
+  const avg = (f) => (N ? sum(f) / N : 0);
+  const avgDraw = avg((r) => r.cardsDrawn);
+  const avgCoins = avg((r) => r.coins);
+  const avgBuys = avg((r) => r.buys);
+  const deckEmptyPct = (sum((r) => (r.deckEmptyEncountered ? 1 : 0)) / N) * 100;
   return { N, avgDraw, avgCoins, avgBuys, deckEmptyPct };
 }
 
@@ -281,10 +291,12 @@ function renderSummary(el, s) {
 }
 
 function renderEndReasons(el, reasons, total) {
-  const lines = reasons.map(([reason, count]) => {
-    const pct = ((count / total) * 100).toFixed(1).padStart(5);
-    return `${reason.padEnd(18)} | ${String(count).padStart(6)} (${pct}%)`;
-  }).join('\n');
+  const lines = reasons
+    .map(([reason, count]) => {
+      const pct = ((count / total) * 100).toFixed(1).padStart(5);
+      return `${reason.padEnd(18)} | ${String(count).padStart(6)} (${pct}%)`;
+    })
+    .join('\n');
   el.textContent = lines || '(no data)';
 }
 
@@ -292,6 +304,8 @@ function renderEndReasons(el, reasons, total) {
 window.addEventListener('DOMContentLoaded', () => {
   const deckInput = document.getElementById('deckInput');
   const simCount = document.getElementById('simCount');
+  const simUp = document.getElementById('simUp');
+  const simDown = document.getElementById('simDown');
   const seed = document.getElementById('seed');
   const runBtn = document.getElementById('runBtn');
   const statusEl = document.getElementById('status');
@@ -314,7 +328,7 @@ window.addEventListener('DOMContentLoaded', () => {
       alert('Deck errors:\n' + errors.join('\n'));
       return;
     }
-    const n = Math.max(1, Math.min(200000, parseInt(simCount.value, 10) || 0));
+    const n = Math.max(1, Math.min(1e8, parseInt(simCount.value, 10) || 0));
     statusEl.textContent = `Running ${n.toLocaleString()} simulations...`;
 
     // Run
@@ -322,10 +336,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const summary = summarize(results);
 
     // Histograms
-    const drawH = histogram(results.map(r => r.cardsDrawn));
-    const coinH = histogram(results.map(r => r.coins));
-    const buyH = histogram(results.map(r => r.buys));
-    const reasons = countBy(results.map(r => r.endReason));
+    const drawH = histogram(results.map((r) => r.cardsDrawn));
+    const coinH = histogram(results.map((r) => r.coins));
+    const buyH = histogram(results.map((r) => r.buys));
+    const reasons = countBy(results.map((r) => r.endReason));
 
     histoDrawEl.textContent = formatHisto(drawH, results.length);
     histoCoinsEl.textContent = formatHisto(coinH, results.length);
@@ -334,5 +348,33 @@ window.addEventListener('DOMContentLoaded', () => {
     renderSummary(summaryEl, summary);
 
     statusEl.textContent = 'Done.';
+  });
+
+  const clampSim = (n) => {
+    const min = parseInt(simCount.min || '1', 10) || 1;
+    const max = parseInt(simCount.max || '10000000', 10) || 10000000;
+    const v = Math.round(Number.isFinite(n) ? n : 0);
+    return Math.min(max, Math.max(min, v));
+  };
+
+  simUp?.addEventListener('click', () => {
+    const cur = parseInt(simCount.value, 10) || 0;
+    simCount.value = clampSim(cur * 10);
+  });
+  simDown?.addEventListener('click', () => {
+    const cur = parseInt(simCount.value, 10) || 0;
+    simCount.value = clampSim(cur / 10);
+  });
+
+  simCount.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const cur = parseInt(simCount.value, 10) || 0;
+      simCount.value = clampSim(cur * 10);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const cur = parseInt(simCount.value, 10) || 0;
+      simCount.value = clampSim(cur / 10);
+    }
   });
 });

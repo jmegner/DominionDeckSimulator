@@ -328,7 +328,7 @@ window.addEventListener('DOMContentLoaded', () => {
       alert('Deck errors:\n' + errors.join('\n'));
       return;
     }
-    const n = Math.max(1, Math.min(1e8, parseInt(simCount.value, 10) || 0));
+    const n = parseSimCount();
     statusEl.textContent = `Running ${n.toLocaleString()} simulations...`;
 
     // Run
@@ -356,25 +356,46 @@ window.addEventListener('DOMContentLoaded', () => {
     const v = Math.round(Number.isFinite(n) ? n : 0);
     return Math.min(max, Math.max(min, v));
   };
+  const trimMantissa = (s) => s.replace(/\.0+$/,'').replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+  const formatSci = (n) => {
+    if (!Number.isFinite(n) || n <= 0) return '';
+    const exp = Math.floor(Math.log10(n));
+    const mant = n / Math.pow(10, exp);
+    const mantStr = Math.abs(mant - 1) < 1e-12 ? '1' : trimMantissa(mant.toPrecision(3));
+    return `${mantStr}e${exp}`;
+  };
+  const parseSimCount = () => {
+    const v = Number(String(simCount.value).trim());
+    const n = clampSim(v);
+    return n;
+  };
 
   simUp?.addEventListener('click', () => {
-    const cur = parseInt(simCount.value, 10) || 0;
-    simCount.value = clampSim(cur * 10);
+    const cur = parseSimCount();
+    const next = clampSim(cur * 10);
+    simCount.value = formatSci(next);
   });
   simDown?.addEventListener('click', () => {
-    const cur = parseInt(simCount.value, 10) || 0;
-    simCount.value = clampSim(cur / 10);
+    const cur = parseSimCount();
+    const next = clampSim(cur / 10);
+    simCount.value = formatSci(next);
   });
 
   simCount.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const cur = parseInt(simCount.value, 10) || 0;
-      simCount.value = clampSim(cur * 10);
+      const cur = parseSimCount();
+      const next = clampSim(cur * 10);
+      simCount.value = formatSci(next);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const cur = parseInt(simCount.value, 10) || 0;
-      simCount.value = clampSim(cur / 10);
+      const cur = parseSimCount();
+      const next = clampSim(cur / 10);
+      simCount.value = formatSci(next);
     }
+  });
+  simCount.addEventListener('blur', () => {
+    const n = parseSimCount();
+    if (n) simCount.value = formatSci(n);
   });
 });

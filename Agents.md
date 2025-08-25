@@ -1,0 +1,1 @@
+When doing searches, use `rg` (ripgrep).

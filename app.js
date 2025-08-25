@@ -306,6 +306,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const simCount = document.getElementById('simCount');
   const simUp = document.getElementById('simUp');
   const simDown = document.getElementById('simDown');
+  const cardControls = document.getElementById('cardControls');
   const seed = document.getElementById('seed');
   const runBtn = document.getElementById('runBtn');
   const statusEl = document.getElementById('status');
@@ -319,6 +320,107 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!deckInput.value) {
     deckInput.value = '7 copper, 3 estate, 3 lab, 1 village, 2 smithy';
   }
+
+  // Card quantity controls
+  const supportedOrder = ['estate','copper','silver','gold','village','smithy','lab','festival','merchant','market'];
+  const qty = new Map(supportedOrder.map(id => [id, 0]));
+
+  function buildCardControls() {
+    if (!cardControls) return;
+    cardControls.innerHTML = '';
+    for (const id of supportedOrder) {
+      const card = Cards.byId[id];
+      const row = document.createElement('div');
+      row.className = 'card-row';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'card-name';
+      nameEl.textContent = card.name;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'qty-input';
+      input.readOnly = true;
+      input.value = String(qty.get(id) || 0);
+      input.setAttribute('aria-label', `${card.name} quantity`);
+
+      const btns = document.createElement('div');
+      btns.className = 'qty-buttons';
+      const mkBtn = (label, title) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.title = `${title} ${card.name}`;
+        return b;
+      };
+      const plus = mkBtn('+', 'Increase');
+      const minus = mkBtn('−', 'Decrease');
+      const zero = mkBtn('0', 'Clear');
+
+      plus.addEventListener('click', () => adjustQty(id, 1));
+      minus.addEventListener('click', () => adjustQty(id, -1));
+      zero.addEventListener('click', () => setQty(id, 0));
+
+      btns.appendChild(plus);
+      btns.appendChild(minus);
+      btns.appendChild(zero);
+
+      row.appendChild(nameEl);
+      row.appendChild(input);
+      row.appendChild(btns);
+      cardControls.appendChild(row);
+    }
+  }
+
+  function refreshQtyInputs() {
+    if (!cardControls) return;
+    const inputs = cardControls.querySelectorAll('.card-row .qty-input');
+    let i = 0;
+    for (const id of supportedOrder) {
+      const input = inputs[i++];
+      if (input) input.value = String(qty.get(id) || 0);
+    }
+  }
+
+  function rebuildDeckFromQty() {
+    const parts = [];
+    for (const id of supportedOrder) {
+      const n = qty.get(id) || 0;
+      if (n > 0) parts.push(`${n} ${id}`);
+    }
+    deckInput.value = parts.join(', ');
+  }
+
+  function setQty(id, v) {
+    const nv = Math.max(0, Math.floor(v));
+    qty.set(id, nv);
+    refreshQtyInputs();
+    rebuildDeckFromQty();
+  }
+
+  function adjustQty(id, delta) {
+    const cur = qty.get(id) || 0;
+    setQty(id, cur + delta);
+  }
+
+  function syncQtyFromDeck() {
+    // reset to zero
+    for (const id of supportedOrder) qty.set(id, 0);
+    const parsed = parseDeckList(deckInput.value);
+    const counts = new Map();
+    for (const c of parsed.cards) counts.set(c.id, (counts.get(c.id) || 0) + 1);
+    for (const id of supportedOrder) {
+      if (counts.has(id)) qty.set(id, counts.get(id));
+    }
+    refreshQtyInputs();
+  }
+
+  buildCardControls();
+  syncQtyFromDeck();
+
+  deckInput.addEventListener('blur', () => {
+    syncQtyFromDeck();
+  });
 
   runBtn.addEventListener('click', () => {
     statusEl.textContent = 'Parsing deck...';

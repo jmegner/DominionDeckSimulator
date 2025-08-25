@@ -432,24 +432,31 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     const n = parseSimCount();
     statusEl.textContent = `Running ${n.toLocaleString()} simulations...`;
+    // Disable the run button and defer heavy work so the UI can paint
+    runBtn.disabled = true;
+    setTimeout(() => {
+      try {
+        // Run
+        const results = runSimulations(cards, n, seed.value.trim());
+        const summary = summarize(results);
 
-    // Run
-    const results = runSimulations(cards, n, seed.value.trim());
-    const summary = summarize(results);
+        // Histograms
+        const drawH = histogram(results.map((r) => r.cardsDrawn));
+        const coinH = histogram(results.map((r) => r.coins));
+        const buyH = histogram(results.map((r) => r.buys));
+        const reasons = countBy(results.map((r) => r.endReason));
 
-    // Histograms
-    const drawH = histogram(results.map((r) => r.cardsDrawn));
-    const coinH = histogram(results.map((r) => r.coins));
-    const buyH = histogram(results.map((r) => r.buys));
-    const reasons = countBy(results.map((r) => r.endReason));
+        histoDrawEl.textContent = formatHisto(drawH, results.length);
+        histoCoinsEl.textContent = formatHisto(coinH, results.length);
+        histoBuysEl.textContent = formatHisto(buyH, results.length);
+        renderEndReasons(endReasonsEl, reasons, results.length);
+        renderSummary(summaryEl, summary);
 
-    histoDrawEl.textContent = formatHisto(drawH, results.length);
-    histoCoinsEl.textContent = formatHisto(coinH, results.length);
-    histoBuysEl.textContent = formatHisto(buyH, results.length);
-    renderEndReasons(endReasonsEl, reasons, results.length);
-    renderSummary(summaryEl, summary);
-
-    statusEl.textContent = 'Done.';
+        statusEl.textContent = 'Done.';
+      } finally {
+        runBtn.disabled = false;
+      }
+    }, 0);
   });
 
   const clampSim = (n) => {

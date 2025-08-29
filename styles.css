@@ -19,7 +19,7 @@ h1 {
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 8px;
-  padding: 16px;
+  padding: 8px 16px 16px; /* tighter top padding */
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 label {
@@ -87,15 +87,15 @@ button:hover { background: #1d4ed8; }
 }
 .summary h2 { margin: 0 0 6px; }
 .card-quantities {
-  margin-top: 12px;
+  margin-top: 0; /* remove gap above header */
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 8px;
   padding: 12px;
 }
-.card-quantities h3 { margin: 6px 0 12px; }
+.card-quantities h3 { margin: 0 0 12px; }
 .card-quantities-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.card-quantities-header h3 { margin: 6px 0; }
+.card-quantities-header h3 { margin: 0; }
 .card-controls-actions { margin-bottom: 8px; }
 .card-controls { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .card-row { display: grid; grid-template-columns: 160px 80px auto; align-items: center; gap: 8px; }

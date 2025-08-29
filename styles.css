@@ -48,6 +48,8 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+.deck-input-header { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+.deck-input-header button { padding: 6px 10px; }
 .sim-buttons-row { margin-top: 10px; display: flex; gap: 8px; }
 .sim-buttons-row button { padding: 6px 10px; }
 

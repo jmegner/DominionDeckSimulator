@@ -19,8 +19,13 @@
           <div id="cardControls" class="card-controls"></div>
         </section>
 
-        <label for="deckInput">Deck list</label>
-        <textarea id="deckInput" rows="4" placeholder="e.g. 7 copper, 3 estate, 3 lab, 1 village, 2 smithy"></textarea>
+        <div class="deck-input">
+          <div class="deck-input-header">
+            <label for="deckInput">Deck list</label>
+            <button type="button" id="copyDeckBtn" title="Copy deck list to clipboard">Copy</button>
+          </div>
+          <textarea id="deckInput" rows="4" placeholder="e.g. 7 copper, 3 estate, 3 lab, 1 village, 2 smithy"></textarea>
+        </div>
 
         <div class="options">
           <label>

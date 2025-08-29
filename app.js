@@ -303,6 +303,7 @@ function renderEndReasons(el, reasons, total) {
 // Wire up UI
 window.addEventListener('DOMContentLoaded', () => {
   const deckInput = document.getElementById('deckInput');
+  const copyDeckBtn = document.getElementById('copyDeckBtn');
   const simCount = document.getElementById('simCount');
   const simUp = document.getElementById('simUp');
   const simDown = document.getElementById('simDown');
@@ -441,6 +442,32 @@ window.addEventListener('DOMContentLoaded', () => {
     for (const id of supportedOrder) qty.set(id, 0);
     refreshQtyInputs();
     rebuildDeckFromQty();
+  });
+
+  // Copy deck list to clipboard
+  copyDeckBtn?.addEventListener('click', async () => {
+    const text = deckInput.value || '';
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback using a temporary textarea
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const prev = copyDeckBtn.textContent;
+      copyDeckBtn.textContent = 'Copied!';
+      setTimeout(() => (copyDeckBtn.textContent = prev), 1000);
+    } catch (err) {
+      alert('Could not copy to clipboard. Please copy manually.');
+    }
   });
 
   deckInput.addEventListener('blur', () => {

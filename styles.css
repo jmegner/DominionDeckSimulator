@@ -114,8 +114,9 @@ button:hover { background: #1d4ed8; }
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px 12px 12px;
 }
+.histo h3 { margin: 0 0 6px; }
 pre {
   background: #fbfbfb;
   border: 1px dashed #e8e8e8;

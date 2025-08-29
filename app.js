@@ -526,7 +526,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const summary = summarize(results, cards.length);
 
         // Histograms
-        const drawH = histogram(results.map((r) => r.cardsDrawn));
+    const drawH = histogram(results.map((r) => r.cardsDrawn + 5));
         const coinH = histogram(results.map((r) => r.coins));
         const buyH = histogram(results.map((r) => r.buys));
         const reasons = countBy(results.map((r) => r.endReason));

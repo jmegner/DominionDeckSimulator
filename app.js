@@ -341,9 +341,26 @@ window.addEventListener('DOMContentLoaded', () => {
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'qty-input';
-      input.readOnly = true;
+      input.readOnly = false;
       input.value = String(qty.get(id) || 0);
       input.setAttribute('aria-label', `${card.name} quantity`);
+      // Keep qty map in sync with manual edits without overriding typing UX
+      input.addEventListener('input', () => {
+        const v = parseInt(String(input.value).trim(), 10);
+        const nv = Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+        qty.set(id, nv);
+        rebuildDeckFromQty();
+      });
+      input.addEventListener('blur', () => {
+        // Normalize display to a clean integer after editing
+        refreshQtyInputs();
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (e.target).blur();
+        }
+      });
 
       const btns = document.createElement('div');
       btns.className = 'qty-buttons';

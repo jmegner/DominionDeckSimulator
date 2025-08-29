@@ -282,7 +282,6 @@ function summarize(results, deckSize) {
 
 function renderSummary(el, s) {
   el.innerHTML = `
-    <div><strong>Runs:</strong> ${s.N}</div>
     <div><strong>Deck size:</strong> ${s.deckSize}</div>
     <div><strong>Avg cards drawn:</strong> ${s.avgDraw.toFixed(2)}</div>
     <div><strong>Avg coins:</strong> ${s.avgCoins.toFixed(2)}</div>

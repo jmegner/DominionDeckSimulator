@@ -324,8 +324,19 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Card quantity controls
-  const supportedOrder = ['estate','copper','silver','gold','village','smithy','lab','festival','merchant','market'];
-  const qty = new Map(supportedOrder.map(id => [id, 0]));
+  const supportedOrder = [
+    'estate',
+    'copper',
+    'silver',
+    'gold',
+    'village',
+    'smithy',
+    'lab',
+    'festival',
+    'merchant',
+    'market',
+  ];
+  const qty = new Map(supportedOrder.map((id) => [id, 0]));
 
   function buildCardControls() {
     if (!cardControls) return;
@@ -359,7 +370,7 @@ window.addEventListener('DOMContentLoaded', () => {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          (e.target).blur();
+          e.target.blur();
         }
       });
 
@@ -517,7 +528,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const v = Math.round(Number.isFinite(n) ? n : 0);
     return Math.min(max, Math.max(min, v));
   };
-  const trimMantissa = (s) => s.replace(/\.0+$/,'').replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+  const trimMantissa = (s) =>
+    s
+      .replace(/\.0+$/, '')
+      .replace(/(\.\d*?)0+$/, '$1')
+      .replace(/\.$/, '');
   const formatSci = (n) => {
     if (!Number.isFinite(n) || n <= 0) return '';
     const exp = Math.floor(Math.log10(n));

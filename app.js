@@ -269,7 +269,7 @@ function runSimulations(deckCards, n, seedStr) {
   return results;
 }
 
-function summarize(results) {
+function summarize(results, deckSize) {
   const N = results.length;
   const sum = (f) => results.reduce((acc, r) => acc + f(r), 0);
   const avg = (f) => (N ? sum(f) / N : 0);
@@ -277,12 +277,13 @@ function summarize(results) {
   const avgCoins = avg((r) => r.coins);
   const avgBuys = avg((r) => r.buys);
   const deckEmptyPct = (sum((r) => (r.deckEmptyEncountered ? 1 : 0)) / N) * 100;
-  return { N, avgDraw, avgCoins, avgBuys, deckEmptyPct };
+  return { N, deckSize, avgDraw, avgCoins, avgBuys, deckEmptyPct };
 }
 
 function renderSummary(el, s) {
   el.innerHTML = `
     <div><strong>Runs:</strong> ${s.N}</div>
+    <div><strong>Deck size:</strong> ${s.deckSize}</div>
     <div><strong>Avg cards drawn:</strong> ${s.avgDraw.toFixed(2)}</div>
     <div><strong>Avg coins:</strong> ${s.avgCoins.toFixed(2)}</div>
     <div><strong>Avg buys:</strong> ${s.avgBuys.toFixed(2)}</div>
@@ -490,7 +491,7 @@ window.addEventListener('DOMContentLoaded', () => {
       try {
         // Run
         const results = runSimulations(cards, n, seed.value.trim());
-        const summary = summarize(results);
+        const summary = summarize(results, cards.length);
 
         // Histograms
         const drawH = histogram(results.map((r) => r.cardsDrawn));

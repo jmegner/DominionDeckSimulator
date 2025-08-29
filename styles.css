@@ -82,9 +82,10 @@ button:hover { background: #1d4ed8; }
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 8px;
-  padding: 16px;
+  padding: 8px 16px 16px 16px; /* reduced top padding */
   margin-bottom: 16px;
 }
+.summary h2 { margin: 0 0 6px; }
 .card-quantities {
   margin-top: 12px;
   background: #fff;

@@ -27,10 +27,15 @@
           <textarea id="deckInput" rows="1" placeholder="e.g. 7 copper, 3 estate, 3 lab, 1 village, 2 smithy"></textarea>
         </div>
 
-        <label>
-          Starting hand size
-          <input type="number" id="startingHand" min="1" value="5" />
-        </label>
+        <div class="start-hand-row">
+          <label for="startingHand">Starting hand size</label>
+          <input type="text" id="startingHand" class="qty-input" value="5" inputmode="numeric" />
+          <div class="qty-buttons">
+            <button type="button" id="startHandPlus" title="Increase starting hand size">+</button>
+            <button type="button" id="startHandMinus" title="Decrease starting hand size">−</button>
+            <button type="button" id="startHandReset" title="Reset to 5">5</button>
+          </div>
+        </div>
 
         <div class="options">
           <label>

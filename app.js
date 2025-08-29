@@ -327,6 +327,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const zeroAllBtn = document.getElementById('zeroAllBtn');
   const seed = document.getElementById('seed');
   const startingHandInput = document.getElementById('startingHand');
+  const startHandPlus = document.getElementById('startHandPlus');
+  const startHandMinus = document.getElementById('startHandMinus');
+  const startHandReset = document.getElementById('startHandReset');
   const runBtn = document.getElementById('runBtn');
   const statusEl = document.getElementById('status');
   const histoDrawEl = document.getElementById('histoDraw');
@@ -505,6 +508,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
   deckInput.addEventListener('blur', () => {
     syncQtyFromDeck();
+  });
+
+  // Starting hand size controls
+  const clampStartHand = (n) => {
+    const v = Math.round(Number.isFinite(n) ? n : 5);
+    return Math.max(1, v);
+  };
+  const parseStartingHandInput = () => clampStartHand(Number(String(startingHandInput?.value ?? '5').trim()));
+  startHandPlus?.addEventListener('click', () => {
+    const cur = parseStartingHandInput();
+    startingHandInput.value = String(clampStartHand(cur + 1));
+  });
+  startHandMinus?.addEventListener('click', () => {
+    const cur = parseStartingHandInput();
+    startingHandInput.value = String(clampStartHand(cur - 1));
+  });
+  startHandReset?.addEventListener('click', () => {
+    startingHandInput.value = '5';
+  });
+  startingHandInput?.addEventListener('blur', () => {
+    startingHandInput.value = String(parseStartingHandInput());
   });
 
   runBtn.addEventListener('click', () => {

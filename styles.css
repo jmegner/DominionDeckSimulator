@@ -104,6 +104,7 @@ button:hover { background: #1d4ed8; }
 .qty-input[readonly] { cursor: default; }
 .qty-buttons { display: inline-flex; gap: 6px; }
 .qty-buttons button { padding: 6px 10px; }
+.start-hand-row { display: grid; grid-template-columns: 200px 120px auto; align-items: center; gap: 8px; margin-top: 12px; }
 .histos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

@@ -109,6 +109,7 @@ button:hover { background: #1d4ed8; }
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
 }
+.histos .histo.end-reasons { grid-column: span 2; }
 .histo {
   background: #fff;
   border: 1px solid #e6e6e6;

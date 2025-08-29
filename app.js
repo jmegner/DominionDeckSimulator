@@ -162,13 +162,13 @@ function simulateTurn(deckCards, rng) {
     return actionCards[0];
   }
 
-  let endReason = 'no_action_cards';
+  let endReason = '';
 
   // Action phase
   while (actions > 0) {
     const next = nextActionCard();
     if (!next) {
-      endReason = 'no_action_cards';
+      // No action cards left to play
       break;
     }
     // Play it
@@ -191,9 +191,7 @@ function simulateTurn(deckCards, rng) {
 
     // If we still have actions but no action cards, loop will end next iteration
     if (actions === 0) {
-      // Check if we have unplayed actions in hand; if so, we ended due to actions
-      if (hand.some(isAction)) endReason = 'no_actions';
-      else endReason = 'no_action_cards';
+      // Loop ends; reason determined after loop with priority rules
       break;
     }
   }
@@ -213,6 +211,20 @@ function simulateTurn(deckCards, rng) {
   }
   for (const t of others) {
     coins += t.coins || 0;
+  }
+
+  // Determine end reason with priorities:
+  // 1) whole deck drawn (all cards drawn)
+  // 2) no actions (no actions remaining)
+  // 3) no draw cards in hand (no action cards with draw>0 in hand while draw pile not empty)
+  if (draw.length === 0) {
+    endReason = 'whole deck drawn';
+  } else if (actions === 0) {
+    endReason = 'no actions';
+  } else {
+    const hasDrawActionInHand = hand.some((c) => isAction(c) && (c.draw || 0) > 0);
+    if (!hasDrawActionInHand) endReason = 'no draw cards in hand';
+    else endReason = 'no actions'; // fallback, though this case should rarely occur
   }
 
   return {
@@ -291,10 +303,11 @@ function renderSummary(el, s) {
 }
 
 function renderEndReasons(el, reasons, total) {
+  const reasonWidth = reasons.length ? Math.max(...reasons.map(([r]) => r.length)) : 0;
   const lines = reasons
     .map(([reason, count]) => {
       const pct = ((count / total) * 100).toFixed(1).padStart(5);
-      return `${reason.padEnd(18)} | ${String(count).padStart(6)} (${pct}%)`;
+      return `${reason.padEnd(reasonWidth)} | ${String(count).padStart(6)} (${pct}%)`;
     })
     .join('\n');
   el.textContent = lines || '(no data)';

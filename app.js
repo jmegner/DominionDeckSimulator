@@ -111,14 +111,13 @@ function isTreasure(c) {
 }
 
 // One-turn simulator from a fixed deck composition
-function simulateTurn(deckCards, rng) {
+function simulateTurn(deckCards, rng, startingHand) {
   // Copy + shuffle draw pile; no discard pile at start
   const draw = deckCards.slice();
   shuffleInPlace(draw, rng);
 
   const hand = [];
   const inPlay = [];
-  const startingHand = 5;
   let deckEmptyEncountered = false;
 
   const drawOne = () => {
@@ -276,16 +275,16 @@ function countBy(arr) {
   return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
 }
 
-function runSimulations(deckCards, n, seedStr) {
+function runSimulations(deckCards, n, seedStr, startingHand) {
   const rng = makeRng(seedStr);
   const results = [];
   for (let i = 0; i < n; i++) {
-    results.push(simulateTurn(deckCards, rng));
+    results.push(simulateTurn(deckCards, rng, startingHand));
   }
   return results;
 }
 
-function summarize(results, deckSize) {
+function summarize(results, deckSize, startingHand) {
   const N = results.length;
   const sum = (f) => results.reduce((acc, r) => acc + f(r), 0);
   const avg = (f) => (N ? sum(f) / N : 0);
@@ -293,13 +292,13 @@ function summarize(results, deckSize) {
   const avgCoins = avg((r) => r.coins);
   const avgBuys = avg((r) => r.buys);
   const deckEmptyPct = (sum((r) => (r.deckEmptyEncountered ? 1 : 0)) / N) * 100;
-  return { N, deckSize, avgDraw, avgCoins, avgBuys, deckEmptyPct };
+  return { N, deckSize, startingHand, avgDraw, avgCoins, avgBuys, deckEmptyPct };
 }
 
 function renderSummary(el, s) {
   el.innerHTML = `
     <div><strong>Deck size:</strong> ${s.deckSize}</div>
-    <div><strong>Avg cards drawn:</strong> 5 + ${s.avgDraw.toFixed(2)} = ${(5 + s.avgDraw).toFixed(2)}</div>
+    <div><strong>Avg cards drawn:</strong> ${s.startingHand} + ${s.avgDraw.toFixed(2)} = ${(s.startingHand + s.avgDraw).toFixed(2)}</div>
     <div><strong>Avg coins:</strong> ${s.avgCoins.toFixed(2)}</div>
     <div><strong>Avg buys:</strong> ${s.avgBuys.toFixed(2)}</div>
     <div><strong>Deck hit empty while drawing:</strong> ${s.deckEmptyPct.toFixed(1)}%</div>
@@ -327,6 +326,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const cardControls = document.getElementById('cardControls');
   const zeroAllBtn = document.getElementById('zeroAllBtn');
   const seed = document.getElementById('seed');
+  const startingHandInput = document.getElementById('startingHand');
   const runBtn = document.getElementById('runBtn');
   const statusEl = document.getElementById('status');
   const histoDrawEl = document.getElementById('histoDraw');
@@ -516,17 +516,28 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const n = parseSimCount();
+    // Parse starting hand size (min defaults to 1)
+    const clampStart = (val) => {
+      const min = parseInt(startingHandInput?.min || '1', 10) || 1;
+      const max = parseInt(startingHandInput?.max || '1000000', 10) || 1000000;
+      const v = Math.round(Number.isFinite(val) ? val : 5);
+      return Math.min(max, Math.max(min, v));
+    };
+    let startingHand = clampStart(Number(String(startingHandInput?.value ?? '5').trim()));
     statusEl.textContent = `Running ${n.toLocaleString()} simulations...`;
     // Disable the run button and defer heavy work so the UI can paint
     runBtn.disabled = true;
     setTimeout(() => {
       try {
+        // Ensure starting hand does not exceed deck size
+        startingHand = Math.min(startingHand, cards.length);
+
         // Run
-        const results = runSimulations(cards, n, seed.value.trim());
-        const summary = summarize(results, cards.length);
+        const results = runSimulations(cards, n, seed.value.trim(), startingHand);
+        const summary = summarize(results, cards.length, startingHand);
 
         // Histograms
-    const drawH = histogram(results.map((r) => r.cardsDrawn + 5));
+        const drawH = histogram(results.map((r) => r.cardsDrawn + startingHand));
         const coinH = histogram(results.map((r) => r.coins));
         const buyH = histogram(results.map((r) => r.buys));
         const reasons = countBy(results.map((r) => r.endReason));

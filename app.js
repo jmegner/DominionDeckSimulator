@@ -283,7 +283,7 @@ function summarize(results, deckSize) {
 function renderSummary(el, s) {
   el.innerHTML = `
     <div><strong>Deck size:</strong> ${s.deckSize}</div>
-    <div><strong>Avg cards drawn:</strong> ${s.avgDraw.toFixed(2)}</div>
+    <div><strong>Avg cards drawn:</strong> 5 + ${s.avgDraw.toFixed(2)} = ${(5 + s.avgDraw).toFixed(2)}</div>
     <div><strong>Avg coins:</strong> ${s.avgCoins.toFixed(2)}</div>
     <div><strong>Avg buys:</strong> ${s.avgBuys.toFixed(2)}</div>
     <div><strong>Deck hit empty while drawing:</strong> ${s.deckEmptyPct.toFixed(1)}%</div>
@@ -531,16 +531,45 @@ window.addEventListener('DOMContentLoaded', () => {
     return n;
   };
 
-  simUp?.addEventListener('click', () => {
-    const cur = parseSimCount();
-    const next = clampSim(cur * 10);
-    simCount.value = formatSci(next);
-  });
-  simDown?.addEventListener('click', () => {
-    const cur = parseSimCount();
-    const next = clampSim(cur / 10);
-    simCount.value = formatSci(next);
-  });
+  // Step functions for chain: 1, 3, 10, 30, 100, 300, ...
+  const nextChain = (n) => {
+    if (!Number.isFinite(n) || n <= 0) return 1;
+    const e = Math.floor(Math.log10(n));
+    const base = Math.pow(10, e);
+    const m = n / base; // 1 <= m < 10 typically
+    if (m < 3) return 3 * base;
+    if (m < 10) return 10 * base;
+    return 1 * base * 10; // fallback
+  };
+  const prevChain = (n) => {
+    if (!Number.isFinite(n) || n <= 1) return 1;
+    const e = Math.floor(Math.log10(n));
+    const base = Math.pow(10, e);
+    const m = n / base;
+    if (m > 3) return 3 * base;
+    if (m > 1) return 1 * base;
+    return e > 0 ? 3 * Math.pow(10, e - 1) : 1;
+  };
+
+  // Update button labels/titles to ×3 and ÷3 and wire stepping chain
+  if (simUp) {
+    simUp.textContent = '×3';
+    simUp.title = 'Increase simulations (1→3→10→30→…)';
+    simUp.addEventListener('click', () => {
+      const cur = parseSimCount();
+      const next = clampSim(nextChain(cur));
+      simCount.value = formatSci(next);
+    });
+  }
+  if (simDown) {
+    simDown.textContent = '÷3';
+    simDown.title = 'Decrease simulations (…→30→10→3→1)';
+    simDown.addEventListener('click', () => {
+      const cur = parseSimCount();
+      const next = clampSim(prevChain(cur));
+      simCount.value = formatSci(next);
+    });
+  }
 
   simCount.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowUp') {

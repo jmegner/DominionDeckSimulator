@@ -4,7 +4,9 @@
 // Card database
 const Cards = (() => {
   const byId = {
-    estate: { id: 'estate', name: 'Estate', types: ['victory'] },
+    estate: { id: 'estate', name: 'Estate', types: ['victory'], vp: 1 },
+    duchy: { id: 'duchy', name: 'Duchy', types: ['victory'], vp: 3 },
+    province: { id: 'province', name: 'Province', types: ['victory'], vp: 6 },
     copper: { id: 'copper', name: 'Copper', types: ['treasure'], coins: 1 },
     silver: { id: 'silver', name: 'Silver', types: ['treasure'], coins: 2 },
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
@@ -18,24 +20,18 @@ const Cards = (() => {
   };
 
   // Name aliases to help parser
-  const aliases = new Map([
-    ['estate', 'estate'],
-    ['copper', 'copper'],
-    ['silver', 'silver'],
-    ['gold', 'gold'],
-
-    ['village', 'village'],
-    ['smithy', 'smithy'],
-    ['lab', 'lab'],
-    ['laboratory', 'lab'],
-    ['festival', 'festival'],
-    ['merchant', 'merchant'],
-    ['market', 'market'],
+  const abbreviationToId = new Map([
+    ['e', 'estate'],
+    ['d', 'duchy'],
+    ['p', 'province'],
+    ['c', 'copper'],
+    ['s', 'silver'],
+    ['g', 'gold'],
   ]);
 
-  function fromName(s) {
-    const key = aliases.get(String(s).trim().toLowerCase());
-    return key ? byId[key] : undefined;
+  function fromName(cardNameOrAbbreviation) {
+    const key = abbreviationToId.get(String(cardNameOrAbbreviation).trim().toLowerCase()) || cardNameOrAbbreviation;
+    return byId[key];
   }
 
   return { byId, fromName };
@@ -340,6 +336,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Card quantity controls
   const supportedOrder = [
     'estate',
+    'duchy',
+    'province',
     'copper',
     'silver',
     'gold',

@@ -142,9 +142,9 @@ function simulateTurn(deckCards, rng) {
     if (actionCards.length === 0) return undefined;
     // Heuristic priority: prefer action gainers and drawers first; Smithy later
     actionCards.sort((a, b) => {
-      const aGain = a.actions || 0;
-      const bGain = b.actions || 0;
-      if (bGain !== aGain) return bGain - aGain;
+      const aActions = a.actions || 0;
+      const bActions = b.actions || 0;
+      if (bActions !== aActions) return bActions - aActions;
       const aDraw = a.draw || 0;
       const bDraw = b.draw || 0;
       if (bDraw !== aDraw) return bDraw - aDraw;
@@ -154,10 +154,11 @@ function simulateTurn(deckCards, rng) {
       const aCoins = a.coins || 0;
       const bCoins = b.coins || 0;
       if (bCoins !== aCoins) return bCoins - aCoins;
-      // Smithy last fallback
-      const aIsSmithy = a.id === 'smithy' ? 1 : 0;
-      const bIsSmithy = b.id === 'smithy' ? 1 : 0;
-      return aIsSmithy - bIsSmithy;
+      if (a.merchant != b.merchant) return !!b.merchant - !!a.merchant;
+      // actual good criteria exhausted; let's do arbitrary tie-winner
+      if (a.id > b.id) return -1;
+      if (a.id < b.id) return 1;
+      return 0;
     });
     return actionCards[0];
   }

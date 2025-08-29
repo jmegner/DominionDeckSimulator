@@ -4,6 +4,7 @@
 // Card database
 const Cards = (() => {
   const byId = {
+    curse: { id: 'curse', name: 'Curse', types: ['curse'], vp: -1 },
     estate: { id: 'estate', name: 'Estate', types: ['victory'], vp: 1 },
     duchy: { id: 'duchy', name: 'Duchy', types: ['victory'], vp: 3 },
     province: { id: 'province', name: 'Province', types: ['victory'], vp: 6 },
@@ -17,6 +18,9 @@ const Cards = (() => {
     festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
     merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
     market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
+    council_room: { id: 'council_room', name: 'Council Room', types: ['action'], draw: 4, actions: 0, buys: 1 },
+    peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
+    moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
   };
 
   // Name aliases to help parser
@@ -27,6 +31,9 @@ const Cards = (() => {
     ['c', 'copper'],
     ['s', 'silver'],
     ['g', 'gold'],
+    // Friendly name mappings for multi-word action cards
+    ['council room', 'council_room'],
+    ['councilroom', 'council_room'],
   ]);
 
   function fromName(cardNameOrAbbreviation) {
@@ -341,11 +348,14 @@ window.addEventListener('DOMContentLoaded', () => {
     'copper',
     'silver',
     'gold',
-    'village',
-    'smithy',
-    'lab',
     'festival',
+    'village',
+    'moat',
+    'smithy',
+    'council_room',
+    'lab',
     'merchant',
+    'peddler',
     'market',
   ];
   const qty = new Map(supportedOrder.map((id) => [id, 0]));

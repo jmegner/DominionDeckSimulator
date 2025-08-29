@@ -307,6 +307,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const simUp = document.getElementById('simUp');
   const simDown = document.getElementById('simDown');
   const cardControls = document.getElementById('cardControls');
+  const zeroAllBtn = document.getElementById('zeroAllBtn');
   const seed = document.getElementById('seed');
   const runBtn = document.getElementById('runBtn');
   const statusEl = document.getElementById('status');
@@ -417,6 +418,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
   buildCardControls();
   syncQtyFromDeck();
+
+  // Zero-all button
+  zeroAllBtn?.addEventListener('click', () => {
+    for (const id of supportedOrder) qty.set(id, 0);
+    refreshQtyInputs();
+    rebuildDeckFromQty();
+  });
 
   deckInput.addEventListener('blur', () => {
     syncQtyFromDeck();

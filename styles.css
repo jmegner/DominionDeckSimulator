@@ -91,6 +91,7 @@ button:hover { background: #1d4ed8; }
   padding: 12px;
 }
 .card-quantities h3 { margin: 6px 0 12px; }
+.card-controls-actions { margin-bottom: 8px; }
 .card-controls { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .card-row { display: grid; grid-template-columns: 160px 80px auto; align-items: center; gap: 8px; }
 .card-name { font-weight: 600; }

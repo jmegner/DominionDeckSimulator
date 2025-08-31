@@ -111,7 +111,7 @@ function isTreasure(c) {
 }
 
 // One-turn simulator from a fixed deck composition
-function simulateTurn(deckCards, rng, startingHand) {
+function simulateTurn(deckCards, rng, startingHand, startingActions) {
   // Copy + shuffle draw pile; no discard pile at start
   const draw = deckCards.slice();
   shuffleInPlace(draw, rng);
@@ -134,7 +134,7 @@ function simulateTurn(deckCards, rng, startingHand) {
     if (c) hand.push(c);
   }
 
-  let actions = 1;
+  let actions = startingActions;
   let buys = 1;
   let coins = 0;
   let merchantCount = 0; // number of Merchants played before Treasures
@@ -275,11 +275,11 @@ function countBy(arr) {
   return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
 }
 
-function runSimulations(deckCards, n, seedStr, startingHand) {
+function runSimulations(deckCards, n, seedStr, startingHand, startingActions) {
   const rng = makeRng(seedStr);
   const results = [];
   for (let i = 0; i < n; i++) {
-    results.push(simulateTurn(deckCards, rng, startingHand));
+    results.push(simulateTurn(deckCards, rng, startingHand, startingActions));
   }
   return results;
 }
@@ -327,6 +327,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const zeroAllBtn = document.getElementById('zeroAllBtn');
   const seed = document.getElementById('seed');
   const startingHandInput = document.getElementById('startingHand');
+  const startingActionsInput = document.getElementById('startingActions');
+  const startActionsPlus = document.getElementById('startActionsPlus');
+  const startActionsMinus = document.getElementById('startActionsMinus');
+  const startActionsReset = document.getElementById('startActionsReset');
   const startHandPlus = document.getElementById('startHandPlus');
   const startHandMinus = document.getElementById('startHandMinus');
   const startHandReset = document.getElementById('startHandReset');
@@ -531,6 +535,27 @@ window.addEventListener('DOMContentLoaded', () => {
     startingHandInput.value = String(parseStartingHandInput());
   });
 
+  // Starting actions controls
+  const clampStartActions = (n) => {
+    const v = Math.round(Number.isFinite(n) ? n : 1);
+    return Math.max(0, v);
+  };
+  const parseStartingActionsInput = () => clampStartActions(Number(String(startingActionsInput?.value ?? '1').trim()));
+  startActionsPlus?.addEventListener('click', () => {
+    const cur = parseStartingActionsInput();
+    startingActionsInput.value = String(clampStartActions(cur + 1));
+  });
+  startActionsMinus?.addEventListener('click', () => {
+    const cur = parseStartingActionsInput();
+    startingActionsInput.value = String(clampStartActions(cur - 1));
+  });
+  startActionsReset?.addEventListener('click', () => {
+    startingActionsInput.value = '1';
+  });
+  startingActionsInput?.addEventListener('blur', () => {
+    startingActionsInput.value = String(parseStartingActionsInput());
+  });
+
   runBtn.addEventListener('click', () => {
     statusEl.textContent = 'Parsing deck...';
     const { cards, errors } = parseDeckList(deckInput.value);
@@ -548,6 +573,8 @@ window.addEventListener('DOMContentLoaded', () => {
       return Math.min(max, Math.max(min, v));
     };
     let startingHand = clampStart(Number(String(startingHandInput?.value ?? '5').trim()));
+    // Parse starting actions (min 0)
+    const startingActions = Math.max(0, Math.round(Number(String(startingActionsInput?.value ?? '1').trim())) || 1);
     statusEl.textContent = `Running ${n.toLocaleString()} simulations...`;
     // Disable the run button and defer heavy work so the UI can paint
     runBtn.disabled = true;
@@ -557,7 +584,7 @@ window.addEventListener('DOMContentLoaded', () => {
         startingHand = Math.min(startingHand, cards.length);
 
         // Run
-        const results = runSimulations(cards, n, seed.value.trim(), startingHand);
+        const results = runSimulations(cards, n, seed.value.trim(), startingHand, startingActions);
         const summary = summarize(results, cards.length, startingHand);
 
         // Histograms

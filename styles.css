@@ -106,6 +106,8 @@ button:hover { background: #1d4ed8; }
 .qty-buttons button { padding: 6px 10px; }
 .start-hand-row { display: grid; grid-template-columns: 200px max-content auto; align-items: center; gap: 8px; margin-top: 12px; }
 #startingHand { width: 6ch; }
+.start-actions-row { display: grid; grid-template-columns: 200px max-content auto; align-items: center; gap: 8px; margin-top: 12px; }
+#startingActions { width: 6ch; }
 .histos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

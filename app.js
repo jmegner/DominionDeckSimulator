@@ -38,13 +38,16 @@ const Cards = (() => {
     ['c', 'copper'],
     ['s', 'silver'],
     ['g', 'gold'],
-    // Friendly name mappings for multi-word action cards
-    ['council room', 'council_room'],
-    ['councilroom', 'council_room'],
-    ['fishing village', 'fishing_village'],
-    ['fishingvillage', 'fishing_village'],
-    ['fishingvillage', 'fishing_village'],
   ]);
+  // Auto‑generate friendly aliases for ids with underscores
+  for (const id of Object.keys(byId)) {
+    if (id.includes('_')) {
+      const smashed = id.replace(/_/g, ''); // e.g., council_room -> councilroom
+      const spaced = id.replace(/_/g, ' '); // e.g., council_room -> council room
+      if (!abbreviationToId.has(smashed)) abbreviationToId.set(smashed, id);
+      if (!abbreviationToId.has(spaced)) abbreviationToId.set(spaced, id);
+    }
+  }
 
   function fromName(cardNameOrAbbreviation) {
     const key = abbreviationToId.get(String(cardNameOrAbbreviation).trim().toLowerCase()) || cardNameOrAbbreviation;

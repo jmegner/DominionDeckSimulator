@@ -14,14 +14,7 @@ const Cards = (() => {
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
 
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },
-    fishing_village: {
-      id: 'fishing_village',
-      name: 'Fishing Village',
-      types: ['action'],
-      draw: 0,
-      actions: 2,
-      coins: 1,
-    },
+    fishing_village: { id: 'fishing_village', name: 'Fishing Village', types: ['action'], actions: 2, coins: 1 },
     smithy: { id: 'smithy', name: 'Smithy', types: ['action'], draw: 3, actions: 0 },
     lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
     festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },

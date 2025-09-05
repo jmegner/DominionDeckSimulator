@@ -8,11 +8,13 @@ const Cards = (() => {
     estate: { id: 'estate', name: 'Estate', types: ['victory'], vp: 1 },
     duchy: { id: 'duchy', name: 'Duchy', types: ['victory'], vp: 3 },
     province: { id: 'province', name: 'Province', types: ['victory'], vp: 6 },
+
     copper: { id: 'copper', name: 'Copper', types: ['treasure'], coins: 1 },
     silver: { id: 'silver', name: 'Silver', types: ['treasure'], coins: 2 },
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
 
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },
+    fishing_village: { id: 'fishing_village', name: 'Fishing Village', types: ['action'], draw: 0, actions: 2, coins: 1 },
     smithy: { id: 'smithy', name: 'Smithy', types: ['action'], draw: 3, actions: 0 },
     lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
     festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
@@ -21,6 +23,7 @@ const Cards = (() => {
     council_room: { id: 'council_room', name: 'Council Room', types: ['action'], draw: 4, actions: 0, buys: 1 },
     peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
     moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
+    wharf: { id: 'wharf', name: 'Wharf', types: ['action'], draw: 2, buys: 1 },
   };
 
   // Name aliases to help parser
@@ -34,6 +37,8 @@ const Cards = (() => {
     // Friendly name mappings for multi-word action cards
     ['council room', 'council_room'],
     ['councilroom', 'council_room'],
+    ['fishing village', 'fishing_village'],
+    ['fishingvillage', 'fishing_village'],
   ]);
 
   function fromName(cardNameOrAbbreviation) {
@@ -357,6 +362,7 @@ window.addEventListener('DOMContentLoaded', () => {
     'gold',
     'festival',
     'village',
+    'fishing_village',
     'moat',
     'smithy',
     'council_room',

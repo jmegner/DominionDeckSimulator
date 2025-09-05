@@ -28,6 +28,15 @@ const Cards = (() => {
     pearl_diver: { id: 'pearl_diver', name: 'Pearl Diver', types: ['action'], draw: 1, actions: 1 },
     merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
     market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
+    grand_market: {
+      id: 'grand_market',
+      name: 'Grand Market',
+      types: ['action'],
+      draw: 1,
+      actions: 1,
+      buys: 1,
+      coins: 2,
+    },
     monument: { id: 'monument', name: 'Monument', types: ['action'], coins: 2, vpTokens: 1 },
   };
 
@@ -172,6 +181,9 @@ function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys =
       const bCoins = b.coins || 0;
       if (bCoins !== aCoins) return bCoins - aCoins;
       if (a.merchant != b.merchant) return !!b.merchant - !!a.merchant;
+      const aVpTokens = a.vpTokens || 0;
+      const bVpTokens = b.vpTokens || 0;
+      if (bVpTokens !== aVpTokens) return bVpTokens - aVpTokens;
       // actual good criteria exhausted; let's do arbitrary tie-winner
       if (a.id > b.id) return -1;
       if (a.id < b.id) return 1;

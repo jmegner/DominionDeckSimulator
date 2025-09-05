@@ -37,6 +37,7 @@ const Cards = (() => {
 
     // cantrips
     pearl_diver: { id: 'pearl_diver', name: 'Pearl Diver', types: ['action'], draw: 1, actions: 1 },
+    farrier: { id: 'farrier', name: 'Farrier', types: ['action'], draw: 1, actions: 1, buys: 1 },
     merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
     market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
     grand_market: {

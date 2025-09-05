@@ -14,7 +14,14 @@ const Cards = (() => {
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
 
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },
-    fishing_village: { id: 'fishing_village', name: 'Fishing Village', types: ['action'], draw: 0, actions: 2, coins: 1 },
+    fishing_village: {
+      id: 'fishing_village',
+      name: 'Fishing Village',
+      types: ['action'],
+      draw: 0,
+      actions: 2,
+      coins: 1,
+    },
     smithy: { id: 'smithy', name: 'Smithy', types: ['action'], draw: 3, actions: 0 },
     lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
     festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
@@ -116,7 +123,7 @@ function isTreasure(c) {
 }
 
 // One-turn simulator from a fixed deck composition
-function simulateTurn(deckCards, rng, startingHand, startingActions) {
+function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys = 0, extraCoins = 0) {
   // Copy + shuffle draw pile; no discard pile at start
   const draw = deckCards.slice();
   shuffleInPlace(draw, rng);
@@ -140,8 +147,8 @@ function simulateTurn(deckCards, rng, startingHand, startingActions) {
   }
 
   let actions = startingActions;
-  let buys = 1;
-  let coins = 0;
+  let buys = 1 + (extraBuys || 0);
+  let coins = 0 + (extraCoins || 0);
   let merchantCount = 0; // number of Merchants played before Treasures
 
   function nextActionCard() {
@@ -280,16 +287,16 @@ function countBy(arr) {
   return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
 }
 
-function runSimulations(deckCards, n, seedStr, startingHand, startingActions) {
+function runSimulations(deckCards, n, seedStr, startingHand, startingActions, extraBuys, extraCoins) {
   const rng = makeRng(seedStr);
   const results = [];
   for (let i = 0; i < n; i++) {
-    results.push(simulateTurn(deckCards, rng, startingHand, startingActions));
+    results.push(simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys, extraCoins));
   }
   return results;
 }
 
-function summarize(results, deckSize, startingHand) {
+function summarize(results, deckSize, startingHand, inPlayCount) {
   const N = results.length;
   const sum = (f) => results.reduce((acc, r) => acc + f(r), 0);
   const avg = (f) => (N ? sum(f) / N : 0);
@@ -297,13 +304,15 @@ function summarize(results, deckSize, startingHand) {
   const avgCoins = avg((r) => r.coins);
   const avgBuys = avg((r) => r.buys);
   const deckEmptyPct = (sum((r) => (r.deckEmptyEncountered ? 1 : 0)) / N) * 100;
-  return { N, deckSize, startingHand, avgDraw, avgCoins, avgBuys, deckEmptyPct };
+  return { N, deckSize, inPlayCount, startingHand, avgDraw, avgCoins, avgBuys, deckEmptyPct };
 }
 
 function renderSummary(el, s) {
   el.innerHTML = `
-    <div><strong>Deck size:</strong> ${s.deckSize}</div>
-    <div><strong>Avg cards drawn:</strong> ${s.startingHand} + ${s.avgDraw.toFixed(2)} = ${(s.startingHand + s.avgDraw).toFixed(2)}</div>
+    <div><strong>Deck size:</strong> ${s.deckSize} + ${s.inPlayCount} in play</div>
+    <div><strong>Avg cards drawn:</strong> ${s.startingHand} + ${s.avgDraw.toFixed(2)} = ${(
+    s.startingHand + s.avgDraw
+  ).toFixed(2)}</div>
     <div><strong>Avg coins:</strong> ${s.avgCoins.toFixed(2)}</div>
     <div><strong>Avg buys:</strong> ${s.avgBuys.toFixed(2)}</div>
     <div><strong>Deck hit empty while drawing:</strong> ${s.deckEmptyPct.toFixed(1)}%</div>
@@ -329,6 +338,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const simUp = document.getElementById('simUp');
   const simDown = document.getElementById('simDown');
   const cardControls = document.getElementById('cardControls');
+  const inPlayControls = document.getElementById('inPlayControls');
   const zeroAllBtn = document.getElementById('zeroAllBtn');
   const seed = document.getElementById('seed');
   const startingHandInput = document.getElementById('startingHand');
@@ -363,6 +373,7 @@ window.addEventListener('DOMContentLoaded', () => {
     'festival',
     'village',
     'fishing_village',
+    'wharf',
     'moat',
     'smithy',
     'council_room',
@@ -372,6 +383,8 @@ window.addEventListener('DOMContentLoaded', () => {
     'market',
   ];
   const qty = new Map(supportedOrder.map((id) => [id, 0]));
+  const inPlayOrder = ['wharf', 'fishing_village'];
+  const inPlayQty = new Map(inPlayOrder.map((id) => [id, 0]));
 
   function buildCardControls() {
     if (!cardControls) return;
@@ -483,6 +496,85 @@ window.addEventListener('DOMContentLoaded', () => {
   buildCardControls();
   syncQtyFromDeck();
 
+  // Build Already In Play controls
+  function buildInPlayControls() {
+    if (!inPlayControls) return;
+    inPlayControls.innerHTML = '';
+    for (const id of inPlayOrder) {
+      const card = Cards.byId[id];
+      const row = document.createElement('div');
+      row.className = 'card-row';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'card-name';
+      nameEl.textContent = card.name;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'qty-input';
+      input.value = String(inPlayQty.get(id) || 0);
+      input.setAttribute('aria-label', `${card.name} in play quantity`);
+      input.addEventListener('input', () => {
+        const v = parseInt(String(input.value).trim(), 10);
+        const nv = Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+        inPlayQty.set(id, nv);
+      });
+      input.addEventListener('blur', () => {
+        refreshInPlayInputs();
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.target.blur();
+        }
+      });
+
+      const btns = document.createElement('div');
+      btns.className = 'qty-buttons';
+      const mkBtn = (label, title) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.title = `${title} ${card.name}`;
+        return b;
+      };
+      const plus = mkBtn('+', 'Increase in-play');
+      const minus = mkBtn('−', 'Decrease in-play');
+      const zero = mkBtn('0', 'Clear in-play');
+
+      plus.addEventListener('click', () => setInPlayQty(id, (inPlayQty.get(id) || 0) + 1));
+      minus.addEventListener('click', () => setInPlayQty(id, (inPlayQty.get(id) || 0) - 1));
+      zero.addEventListener('click', () => setInPlayQty(id, 0));
+
+      btns.appendChild(plus);
+      btns.appendChild(minus);
+      btns.appendChild(zero);
+
+      row.appendChild(nameEl);
+      row.appendChild(input);
+      row.appendChild(btns);
+      inPlayControls.appendChild(row);
+    }
+  }
+
+  function refreshInPlayInputs() {
+    if (!inPlayControls) return;
+    const inputs = inPlayControls.querySelectorAll('.card-row .qty-input');
+    let i = 0;
+    for (const id of inPlayOrder) {
+      const input = inputs[i++];
+      if (input) input.value = String(inPlayQty.get(id) || 0);
+    }
+  }
+
+  function setInPlayQty(id, v) {
+    const nv = Math.max(0, Math.floor(v));
+    inPlayQty.set(id, nv);
+    refreshInPlayInputs();
+  }
+
+  buildInPlayControls();
+
   // Zero-all button
   zeroAllBtn?.addEventListener('click', () => {
     for (const id of supportedOrder) qty.set(id, 0);
@@ -586,15 +678,32 @@ window.addEventListener('DOMContentLoaded', () => {
     runBtn.disabled = true;
     setTimeout(() => {
       try {
+        // Already-in-play effects
+        const wharfCount = inPlayQty.get('wharf') || 0;
+        const fishingVillageCount = inPlayQty.get('fishing_village') || 0;
+        const inPlayCount = wharfCount + fishingVillageCount;
+        const extraBuys = wharfCount; // +1 buy per Wharf already in play
+        const extraCoins = fishingVillageCount; // +1 coin per Fishing Village already in play
+        const startingHandEff = startingHand + wharfCount * 2; // +2 cards per Wharf already in play
+        const startingActionsEff = startingActions + fishingVillageCount; // +1 action per Fishing Village already in play
+
         // Ensure starting hand does not exceed deck size
-        startingHand = Math.min(startingHand, cards.length);
+        const cappedStartingHand = Math.min(startingHandEff, cards.length);
 
         // Run
-        const results = runSimulations(cards, n, seed.value.trim(), startingHand, startingActions);
-        const summary = summarize(results, cards.length, startingHand);
+        const results = runSimulations(
+          cards,
+          n,
+          seed.value.trim(),
+          cappedStartingHand,
+          startingActionsEff,
+          extraBuys,
+          extraCoins
+        );
+        const summary = summarize(results, cards.length, cappedStartingHand, inPlayCount);
 
         // Histograms
-        const drawH = histogram(results.map((r) => r.cardsDrawn + startingHand));
+        const drawH = histogram(results.map((r) => r.cardsDrawn + cappedStartingHand));
         const coinH = histogram(results.map((r) => r.coins));
         const buyH = histogram(results.map((r) => r.buys));
         const reasons = countBy(results.map((r) => r.endReason));

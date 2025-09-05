@@ -94,6 +94,7 @@ button:hover { background: #1d4ed8; }
   padding: 12px;
 }
 .card-quantities h3 { margin: 0 0 12px; }
+.card-quantities h4 { margin: 10px 0 8px; }
 .card-quantities-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .card-quantities-header h3 { margin: 0; }
 .card-controls-actions { margin-bottom: 8px; }

@@ -577,9 +577,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Zero-all button
   zeroAllBtn?.addEventListener('click', () => {
+    // Zero normal deck quantities
     for (const id of supportedOrder) qty.set(id, 0);
     refreshQtyInputs();
     rebuildDeckFromQty();
+
+    // Zero already-in-play quantities
+    if (typeof inPlayOrder !== 'undefined' && typeof inPlayQty !== 'undefined') {
+      for (const id of inPlayOrder) inPlayQty.set(id, 0);
+      if (typeof refreshInPlayInputs === 'function') refreshInPlayInputs();
+    }
   });
 
   // Copy deck list to clipboard

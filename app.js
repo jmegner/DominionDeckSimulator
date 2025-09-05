@@ -28,6 +28,7 @@ const Cards = (() => {
     peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
     moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
     wharf: { id: 'wharf', name: 'Wharf', types: ['action'], draw: 2, buys: 1 },
+    monument: { id: 'monument', name: 'Monument', types: ['action'], coins: 2, vpTokens: 1 },
   };
 
   // Name aliases to help parser
@@ -150,6 +151,7 @@ function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys =
   let actions = startingActions;
   let buys = 1 + (extraBuys || 0);
   let coins = 0 + (extraCoins || 0);
+  let vpTokens = 0;
   let merchantCount = 0; // number of Merchants played before Treasures
 
   function nextActionCard() {
@@ -203,6 +205,7 @@ function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys =
     actions += next.actions || 0;
     buys += next.buys || 0;
     coins += next.coins || 0;
+    vpTokens += next.vpTokens || 0;
     if (next.merchant) merchantCount += 1;
 
     // If we still have actions but no action cards, loop will end next iteration
@@ -249,6 +252,7 @@ function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys =
     buys,
     endReason,
     deckEmptyEncountered,
+    vpTokens,
   };
 }
 
@@ -354,6 +358,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const statusEl = document.getElementById('status');
   const histoDrawEl = document.getElementById('histoDraw');
   const histoCoinsEl = document.getElementById('histoCoins');
+  const histoVPEl = document.getElementById('histoVP');
   const histoBuysEl = document.getElementById('histoBuys');
   const endReasonsEl = document.getElementById('endReasons');
   const summaryEl = document.getElementById('summary');
@@ -365,6 +370,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Card quantity controls
   const supportedOrder = [
+    'curse',
     'estate',
     'duchy',
     'province',
@@ -386,6 +392,7 @@ window.addEventListener('DOMContentLoaded', () => {
     'merchant',
     'peddler',
     'market',
+    'monument',
   ];
   const qty = new Map(supportedOrder.map((id) => [id, 0]));
   const inPlayOrder = ['wharf', 'fishing_village'];
@@ -717,11 +724,15 @@ window.addEventListener('DOMContentLoaded', () => {
         // Histograms
         const drawH = histogram(results.map((r) => r.cardsDrawn + cappedStartingHand));
         const coinH = histogram(results.map((r) => r.coins));
+        // Base VP from deck cards (exclude already in play)
+        const baseVP = cards.reduce((acc, c) => acc + (c.vp || 0), 0);
+        const totalVPH = histogram(results.map((r) => baseVP + (r.vpTokens || 0)));
         const buyH = histogram(results.map((r) => r.buys));
         const reasons = countBy(results.map((r) => r.endReason));
 
         histoDrawEl.textContent = formatHisto(drawH, results.length);
         histoCoinsEl.textContent = formatHisto(coinH, results.length);
+        histoVPEl.textContent = formatHisto(totalVPH, results.length);
         histoBuysEl.textContent = formatHisto(buyH, results.length);
         renderEndReasons(endReasonsEl, reasons, results.length);
         renderSummary(summaryEl, summary);

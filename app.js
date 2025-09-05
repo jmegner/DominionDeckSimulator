@@ -4,27 +4,38 @@
 // Card database
 const Cards = (() => {
   const byId = {
+    // curse and victory
     curse: { id: 'curse', name: 'Curse', types: ['curse'], vp: -1 },
     estate: { id: 'estate', name: 'Estate', types: ['victory'], vp: 1 },
     duchy: { id: 'duchy', name: 'Duchy', types: ['victory'], vp: 3 },
     province: { id: 'province', name: 'Province', types: ['victory'], vp: 6 },
     colony: { id: 'colony', name: 'Colony', types: ['victory'], vp: 10 },
 
+    // treasure
     copper: { id: 'copper', name: 'Copper', types: ['treasure'], coins: 1 },
     silver: { id: 'silver', name: 'Silver', types: ['treasure'], coins: 2 },
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
     platinum: { id: 'platinum', name: 'Platinum', types: ['treasure'], coins: 5 },
+    spices: { id: 'spices', name: 'Spices/Collection', types: ['treasure'], coins: 2, buys: 1 },
 
+    // action, village-ish
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },
     bazaar: { id: 'bazaar', name: 'Bazaar', types: ['action'], draw: 1, actions: 2, coins: 1 },
     festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
     fishing_village: { id: 'fishing_village', name: 'Fishing Village', types: ['action'], actions: 2, coins: 1 },
+    workers_village: { id: 'workers_village', name: 'Workers Village', types: ['action'], actions: 2, buys: 1 },
+
+    // terminal draw
     smithy: { id: 'smithy', name: 'Smithy', types: ['action'], draw: 3, actions: 0 },
     council_room: { id: 'council_room', name: 'Council Room', types: ['action'], draw: 4, actions: 0, buys: 1 },
     peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
     moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
     wharf: { id: 'wharf', name: 'Wharf', types: ['action'], draw: 2, buys: 1 },
+
+    // non-terminal draw
     lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
+
+    // cantrips
     pearl_diver: { id: 'pearl_diver', name: 'Pearl Diver', types: ['action'], draw: 1, actions: 1 },
     merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
     market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
@@ -37,6 +48,10 @@ const Cards = (() => {
       buys: 1,
       coins: 2,
     },
+
+    // other
+    city_2: { id: 'city_2', name: 'CityV2 (2C,2A)', types: ['action'], draw: 2, actions: 2 },
+    city_3: { id: 'city_3', name: 'CityV3 (2C,2A,1$,1B)', types: ['action'], draw: 2, actions: 2, buys: 1, coins: 1 },
     monument: { id: 'monument', name: 'Monument', types: ['action'], coins: 2, vpTokens: 1 },
   };
 
@@ -242,6 +257,7 @@ function simulateTurn(deckCards, rng, startingHand, startingActions, extraBuys =
   }
   for (const t of others) {
     coins += t.coins || 0;
+    buys += t.buys || 0;
   }
 
   // Determine end reason with priorities:

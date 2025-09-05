@@ -31,7 +31,7 @@ const Cards = (() => {
     council_room: { id: 'council_room', name: 'Council Room', types: ['action'], draw: 4, actions: 0, buys: 1 },
     peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
     moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
-    wharf: { id: 'wharf', name: 'Wharf', types: ['action'], draw: 2, buys: 1 },
+    wharf: { id: 'wharf', name: 'Wharf/SilkMerchant', types: ['action'], draw: 2, buys: 1 },
 
     // non-terminal draw
     lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },

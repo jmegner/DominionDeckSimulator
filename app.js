@@ -17,6 +17,7 @@ const Cards = (() => {
     gold: { id: 'gold', name: 'Gold', types: ['treasure'], coins: 3 },
     platinum: { id: 'platinum', name: 'Platinum', types: ['treasure'], coins: 5 },
     spices: { id: 'spices', name: 'Spices/Collection', types: ['treasure'], coins: 2, buys: 1 },
+    stockpile: { id: 'stockpile', name: 'Stockpile', types: ['treasure'], coins: 3, buys: 1 },
 
     // action, village-ish
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },

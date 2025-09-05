@@ -17,17 +17,17 @@ const Cards = (() => {
 
     village: { id: 'village', name: 'Village', types: ['action'], draw: 1, actions: 2 },
     bazaar: { id: 'bazaar', name: 'Bazaar', types: ['action'], draw: 1, actions: 2, coins: 1 },
+    festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
     fishing_village: { id: 'fishing_village', name: 'Fishing Village', types: ['action'], actions: 2, coins: 1 },
     smithy: { id: 'smithy', name: 'Smithy', types: ['action'], draw: 3, actions: 0 },
-    lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
-    festival: { id: 'festival', name: 'Festival', types: ['action'], draw: 0, actions: 2, buys: 1, coins: 2 },
-    pearl_diver: { id: 'pearl_diver', name: 'Pearl Diver', types: ['action'], draw: 1, actions: 1 },
-    merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
-    market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
     council_room: { id: 'council_room', name: 'Council Room', types: ['action'], draw: 4, actions: 0, buys: 1 },
     peddler: { id: 'peddler', name: 'Peddler', types: ['action'], draw: 1, actions: 1, coins: 1 },
     moat: { id: 'moat', name: 'Moat', types: ['action'], draw: 2, actions: 0 },
     wharf: { id: 'wharf', name: 'Wharf', types: ['action'], draw: 2, buys: 1 },
+    lab: { id: 'lab', name: 'Laboratory', types: ['action'], draw: 2, actions: 1 },
+    pearl_diver: { id: 'pearl_diver', name: 'Pearl Diver', types: ['action'], draw: 1, actions: 1 },
+    merchant: { id: 'merchant', name: 'Merchant', types: ['action'], draw: 1, actions: 1, merchant: true },
+    market: { id: 'market', name: 'Market', types: ['action'], draw: 1, actions: 1, buys: 1, coins: 1 },
     monument: { id: 'monument', name: 'Monument', types: ['action'], coins: 2, vpTokens: 1 },
   };
 
@@ -368,40 +368,16 @@ window.addEventListener('DOMContentLoaded', () => {
     deckInput.value = '7 copper, 3 estate, 3 lab, 1 village, 2 smithy';
   }
 
-  // Card quantity controls
-  const supportedOrder = [
-    'curse',
-    'estate',
-    'duchy',
-    'province',
-    'colony',
-    'copper',
-    'silver',
-    'gold',
-    'platinum',
-    'festival',
-    'village',
-    'fishing_village',
-    'bazaar',
-    'wharf',
-    'moat',
-    'smithy',
-    'council_room',
-    'lab',
-    'pearl_diver',
-    'merchant',
-    'peddler',
-    'market',
-    'monument',
-  ];
-  const qty = new Map(supportedOrder.map((id) => [id, 0]));
+  // Card quantity controls (derive from Cards.byId insertion order)
+  const cardIds = Object.keys(Cards.byId);
+  const qty = new Map(cardIds.map((id) => [id, 0]));
   const inPlayOrder = ['wharf', 'fishing_village'];
   const inPlayQty = new Map(inPlayOrder.map((id) => [id, 0]));
 
   function buildCardControls() {
     if (!cardControls) return;
     cardControls.innerHTML = '';
-    for (const id of supportedOrder) {
+    for (const id of cardIds) {
       const card = Cards.byId[id];
       const row = document.createElement('div');
       row.className = 'card-row';
@@ -466,7 +442,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!cardControls) return;
     const inputs = cardControls.querySelectorAll('.card-row .qty-input');
     let i = 0;
-    for (const id of supportedOrder) {
+    for (const id of cardIds) {
       const input = inputs[i++];
       if (input) input.value = String(qty.get(id) || 0);
     }
@@ -474,7 +450,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function rebuildDeckFromQty() {
     const parts = [];
-    for (const id of supportedOrder) {
+    for (const id of cardIds) {
       const n = qty.get(id) || 0;
       if (n > 0) parts.push(`${n} ${id}`);
     }
@@ -495,11 +471,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function syncQtyFromDeck() {
     // reset to zero
-    for (const id of supportedOrder) qty.set(id, 0);
+    for (const id of cardIds) qty.set(id, 0);
     const parsed = parseDeckList(deckInput.value);
     const counts = new Map();
     for (const c of parsed.cards) counts.set(c.id, (counts.get(c.id) || 0) + 1);
-    for (const id of supportedOrder) {
+    for (const id of cardIds) {
       if (counts.has(id)) qty.set(id, counts.get(id));
     }
     refreshQtyInputs();
@@ -590,7 +566,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Zero-all button
   zeroAllBtn?.addEventListener('click', () => {
     // Zero normal deck quantities
-    for (const id of supportedOrder) qty.set(id, 0);
+    for (const id of cardIds) qty.set(id, 0);
     refreshQtyInputs();
     rebuildDeckFromQty();
 
